@@ -1,0 +1,22 @@
+name: 🚀 Deploy Static Site via SSH
+
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🔐 Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 191.101.2.242 >> ~/.ssh/known_hosts
+
+      - name: 📤 Upload files to server
+        run: |
+          scp -i ~/.ssh/id_ed25519 -r ./index.html ./style.css ./script.js root@191.101.2.242:/var/www/html/
